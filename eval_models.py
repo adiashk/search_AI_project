@@ -15,7 +15,7 @@ from Utils.anomaly_utils import get_ocsvm
 from Utils.data_utils import split_to_datasets, preprocess_ICU
 from Utils.models_utils import train_GB_model, train_RF_model
 from sklearn.svm import OneClassSVM
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 def get_config():
     config = configparser.ConfigParser()
@@ -48,8 +48,8 @@ if __name__ == '__main__':
     data_name = data_path.split("/")[-1]
     saving_path = "Models/" 
   
-    model_name_GB = "{}_{}_GB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, seed, 0.01, 500, 6)
-    model_name_RF = "{}_{}_RF_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, seed, 500, 9)
+    model_name_GB = "{}_{}_GB_exclude_{}_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude, seed, 0.1, 10, 3)
+    model_name_RF = "{}_{}_RF_exclude_{}_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude,seed, 500, 9)
     GB  = pickle.load(open(models_path + "/" + model_name_GB + ".pkl", 'rb'))
     RF  = pickle.load(open(models_path + "/" + model_name_RF + ".pkl", 'rb'))
     imp_gb = importances = GB.feature_importances_
@@ -64,15 +64,29 @@ if __name__ == '__main__':
     y_val = datasets["y_test"]
 
     features = x_train.columns.to_frame()
-    
+    '''
     forest_importances = pd.Series(importances, index=features)
+    std = np.std([tree.feature_importances_ for tree in RF.estimators_], axis=0)
 
     fig, ax = plt.subplots()
     forest_importances.plot.bar(yerr=std, ax=ax)
     ax.set_title("Feature importances using MDI")
     ax.set_ylabel("Mean decrease in impurity")
     fig.tight_layout()
+    plt.show()
+    '''
 
+    for i,v in enumerate(imp_gb):
+        print('Feature: %0d, Score: %.5f' % (i,v))
+        # plot feature importance
+    plt.bar([x for x in range(len(imp_gb))], imp_gb)
+    plt.show()
+    
+    for i,v in enumerate(imp_rf):
+        print('Feature: %0d, Score: %.5f' % (i,v))
+        # plot feature importance
+    plt.bar([x for x in range(len(imp_rf))], imp_rf)
+    plt.show()
     
     features.to_csv(data_path+'/edittible_features.csv', index=False)
 

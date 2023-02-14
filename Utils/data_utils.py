@@ -74,8 +74,8 @@ def split_to_datasets(raw_data_path, seed=42, val_size=0.25, surrgate_train_size
     if raw_data_path.split("/")[1] == "HATE":
         data_raw["hate_neigh"] = data_raw["hate_neigh"].apply(lambda x: int(x))
 
-    if exclude is not None:
-        data_raw = data_raw.drop(exclude, axis=1)
+    #if exclude is not None:
+    #    data_raw = data_raw.drop(exclude, axis=1)
 
     pred0 = len(data_raw[data_raw.pred==0])
     pred1 = len(data_raw[data_raw.pred==1])

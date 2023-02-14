@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.utils import resample, shuffle
 
 
-def train_GB_model(data_path, seed=42, val_size=0.2, learning_rate=0.01, n_estimators=500, max_depth=6,
+def train_GB_model(data_path, seed=42, val_size=0.2, learning_rate=0.1, n_estimators=10, max_depth=3,
                    saving_path="Models/", datasets=None, model_type="target", exclude=None):
     if datasets is None:
         data_raw = pd.read_csv(data_path + "/df_sota_train.csv")
