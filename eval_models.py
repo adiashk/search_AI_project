@@ -47,9 +47,14 @@ if __name__ == '__main__':
 
     data_name = data_path.split("/")[-1]
     saving_path = "Models/" 
-  
-    model_name_GB = "{}_{}_GB_exclude_{}_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude, seed, 0.1, 10, 3)
-    model_name_RF = "{}_{}_RF_exclude_{}_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude,seed, 500, 9)
+    
+    if (exclude is not None):
+        model_name_GB = "{}_{}_GB_exclude_{}_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude, seed, 0.1, 10, 3)
+        model_name_RF = "{}_{}_RF_exclude_{}_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude,seed, 500, 9)
+    else:
+        model_name_GB = "{}_{}_GB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude, seed, 0.01, 500, 9)
+        model_name_RF = "{}_{}_RF_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude,seed, 500, 9)
+    
     GB  = pickle.load(open(models_path + "/" + model_name_GB + ".pkl", 'rb'))
     RF  = pickle.load(open(models_path + "/" + model_name_RF + ".pkl", 'rb'))
     imp_gb = importances = GB.feature_importances_
