@@ -1,0 +1,20 @@
+[DEFAULT]
+
+data_path = Datasets/RADCOM
+    # HCDR # ICU #RADCOM
+
+raw_data_path = Datasets/RADCOM
+    # ICU/original/training_v2.csv
+    # HATE/original/twitter_100_5000.csv
+
+perturbability_path = Datasets/RADCOM/edittible_features.csv
+# HATE/top_100_features.csv
+
+models_path = Models/RADCOM
+
+results_path = Results/RADCOM
+    # HCDR # ICU
+
+seed = 42
+
+exclude = None
