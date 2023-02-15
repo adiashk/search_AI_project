@@ -163,6 +163,10 @@ def split_to_datasets(raw_data_path, seed=42, val_size=0.25, surrgate_train_size
             cur_saving_path = save_path + "/" + file_name
             datasets.get(key).to_csv(cur_saving_path, index=False)
 
+    # save edittitible features
+    features = x_train_target.columns.to_frame()
+    features.to_csv(save_path+'/edittible_features.csv', index=False)
+
     return datasets
 
 
