@@ -96,8 +96,8 @@ if __name__ == '__main__':
     # Train models
     if exclude == "None":
         datasets = split_to_datasets(raw_data_path, save_path=data_path)
-        #GB, gb_eval = train_GB_model(data_path, datasets=datasets, model_type="target")
-        #RF, rf_eval = train_RF_model(data_path, datasets=datasets, model_type="target")
+        GB, gb_eval = train_GB_model(data_path, datasets=datasets, model_type="target")
+        RF, rf_eval = train_RF_model(data_path, datasets=datasets, model_type="target")
         XGB, xgb_eval = train_XGB_model(data_path, datasets=datasets, model_type="target")
     else:
         datasets = split_to_datasets(raw_data_path, save_path=data_path, exclude=exclude)
