@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from Attacks.HopSkipJump_tabilar import HopSkipJump
+#from Attacks.HopSkipJump_tabilar import HopSkipJump
+from Attacks.Simulated_Annealing_attack import SimulatedAnnealing
+
 
 
 class FactoryCat:
@@ -59,6 +61,12 @@ def bmi(vector, height, weight):
 
 def increas(vector, pre_vector):
     return np.greater(vector, pre_vector)
+
+def time(vector):
+    return vector
+    
+def date(vector):
+    return vector
 
 def get_constrains(dataset_name, perturbability_path):
     perturbability = pd.read_csv(perturbability_path)
@@ -316,140 +324,37 @@ def get_constrains(dataset_name, perturbability_path):
         }
             
     
-    else:
+    else: # RADCOM
         constrains = {
-            'age': [integer, positive],
-            'bmi': [positive],
-            'elective_surgery': [categorical(1, 2)],
-            'height': [positive],
-            'hospital_admit_source': [categorical(1, 15)],
-            'icu_admit_source': [categorical(1, 5)],
-            'icu_stay_type': [categorical(1, 3)],
-            'icu_type': [categorical(1, 8)],
-            'weight': [positive],
-            'albumin_apache': [positive],
-            'apache_2_diagnosis': [categorical(1, 44)],
-            'apache_3j_diagnosis': [positive],
-            'apache_post_operative': [categorical(1, 2)],
-            'arf_apache': [categorical(1, 2)],
-            'bilirubin_apache': [positive],
-            'bun_apache': [positive],
-            'creatinine_apache': [positive],
-            'fio2_apache': [positive, normalized],
-            'gcs_eyes_apache': [integer, positive],
-            'gcs_motor_apache': [integer, positive],
-            'gcs_unable_apache': [categorical(1, 2)],
-            'gcs_verbal_apache': [integer, positive],
-            'glucose_apache': [positive],
-            'heart_rate_apache': [integer, positive],
-            'hematocrit_apache': [positive],
-            'intubated_apache': [categorical(1, 2)],
-            'map_apache': [integer, positive],
-            'paco2_apache': [positive],
-            'pao2_apache': [positive],
-            'ph_apache': [positive],
-            'resprate_apache': [positive],
-            'sodium_apache': [positive],
-            'temp_apache': [positive],
-            'urineoutput_apache': [positive],
-            'ventilated_apache': [categorical(1, 2)],
-            'wbc_apache': [positive],
-            'd1_diasbp_invasive_max': [integer, positive],
-            'd1_diasbp_invasive_min': [integer, positive],
-            'd1_diasbp_max': [integer, positive],
-            'd1_diasbp_min': [integer, positive],
-            'd1_heartrate_max': [integer, positive],
-            'd1_heartrate_min': [integer, positive],
-            'd1_mbp_invasive_max': [integer, positive],
-            'd1_mbp_invasive_min': [integer, positive],
-            'd1_mbp_max': [integer, positive],
-            'd1_mbp_min': [integer, positive],
-            'd1_resprate_max': [integer, positive],
-            'd1_resprate_min': [integer, positive],
-            'd1_spo2_max': [integer, positive],
-            'd1_spo2_min': [integer, positive],
-            'd1_sysbp_invasive_max': [integer, positive],
-            'd1_sysbp_invasive_min': [integer, positive],
-            'd1_sysbp_max': [integer, positive],
-            'd1_sysbp_min': [integer, positive],
-            'd1_temp_max': [positive],
-            'd1_temp_min': [positive],
-            'h1_diasbp_max': [integer, positive],
-            'h1_diasbp_min': [integer, positive],
-            'h1_diasbp_noninvasive_min': [integer, positive],
-            'h1_heartrate_max': [integer, positive],
-            'h1_heartrate_min': [integer, positive],
-            'h1_mbp_max': [integer, positive],
-            'h1_mbp_min': [integer, positive],
-            'h1_resprate_max': [integer, positive],
-            'h1_resprate_min': [integer, positive],
-            'h1_spo2_max': [integer, positive],
-            'h1_spo2_min': [integer, positive],
-            'h1_sysbp_max': [integer, positive],
-            'h1_sysbp_min': [integer, positive],
-            'h1_sysbp_noninvasive_min': [integer, positive],
-            'h1_temp_max': [positive],
-            'h1_temp_min': [positive],
-            'd1_albumin_max': [positive],
-            'd1_albumin_min': [positive],
-            'd1_bilirubin_min': [positive],
-            'd1_bun_min': [positive],
-            'd1_calcium_max': [positive],
-            'd1_calcium_min': [positive],
-            'd1_creatinine_min': [positive],
-            'd1_glucose_max': [integer, positive],
-            'd1_glucose_min': [integer, positive],
-            'd1_hco3_max': [positive],
-            'd1_hco3_min': [positive],
-            'd1_hemaglobin_max': [positive],
-            'd1_hemaglobin_min': [positive],
-            'd1_hematocrit_max': [positive],
-            'd1_hematocrit_min': [positive],
-            'd1_inr_max': [positive],
-            'd1_inr_min': [positive],
-            'd1_lactate_max': [positive],
-            'd1_lactate_min': [positive],
-            'd1_platelets_max': [integer, positive],
-            'd1_platelets_min': [positive],
-            'd1_potassium_max': [positive],
-            'd1_potassium_min': [positive],
-            'd1_sodium_max': [positive],
-            'd1_sodium_min': [positive],
-            'd1_wbc_max': [positive],
-            'd1_wbc_min': [positive],
-            'h1_glucose_max': [positive],
-            'h1_glucose_min': [integer, positive],
-            'h1_hemaglobin_max': [positive],
-            'h1_hemaglobin_min': [positive],
-            'h1_potassium_max': [positive],
-            'h1_potassium_min': [positive],
-            'h1_sodium_max': [positive],
-            'h1_sodium_min': [positive],
-            'd1_arterial_pco2_max': [positive],
-            'd1_arterial_pco2_min': [positive],
-            'd1_arterial_ph_max': [positive],
-            'd1_arterial_ph_min': [positive],
-            'd1_arterial_po2_max': [positive],
-            'd1_arterial_po2_min': [positive],
-            'd1_pao2fio2ratio_max': [positive],
-            'd1_pao2fio2ratio_min': [positive],
-            'aids': [categorical(1, 2)],
-            'cirrhosis': [categorical(1, 2)],
-            'diabetes_mellitus': [categorical(1, 2)],
-            'hepatic_failure': [categorical(1, 2)],
-            'immunosuppression': [categorical(1, 2)],
-            'leukemia': [categorical(1, 2)],
-            'lymphoma': [categorical(1, 2)],
-            'solid_tumor_with_metastasis': [categorical(1, 2)],
-            'apache_3j_bodysystem': [categorical(1, 12)],
-            'apache_2_bodysystem': [categorical(1, 11)],
-        }
-
+            'agg_count':[positive,integer],
+            'delta_delta_delta_from_previous_request':[positive],
+            'delta_delta_from_previous_request':[positive],
+            'delta_from_previous_request':[positive],
+            'delta_from_start':[positive],
+            'effective_peak_duration':[positive],
+            'index':[positive],
+            #'minimal_bit_rate':[positive,integer],
+            'non_request_data':[positive,integer],
+            #'peak_duration'
+            #'peak_duration_sum'
+            'previous_previous_previous_previous_total_sum_of_data_to_sec':[positive],
+            'previous_previous_previous_total_sum_of_data_to_sec':[positive],
+            'previous_previous_total_sum_of_data_to_sec':[positive],
+            'previous_total_sum_of_data_to_sec':[positive],
+            'sum_of_data':[positive],
+            'total_sum_of_data':[positive],
+            'total_sum_of_data_to_sec':[positive],
+            'serv_label':[categorical(1,3)],
+            'start_of_peak_date':[positive,time],
+            'start_of_peak_time':[positive,time],
+            'end_of_peak_date':[positive,date],
+            'end_of_peak_time':[positive,date],
+            }
 
 
     return constrains, perturbability
 
-
+'''
 def get_hopskipjump(classifier, constraints, columns_names):
     hsj = HopSkipJump(classifier=classifier,
                       batch_size=64,
@@ -463,3 +368,9 @@ def get_hopskipjump(classifier, constraints, columns_names):
                       types2indices=constraints,
                       columns_names=columns_names)
     return hsj
+
+def get_s_annealing(classifier, constraints, columns_names):
+    return SimulatedAnnealing( initialSolution=init_path, solutionEvaluator=path_cost, initialTemp=100, finalTemp=0.01,
+                             tempReduction="linear", neighborOperator=neighbor_operator, iterationPerTemp=100, alpha=10,
+                             beta=5))
+'''

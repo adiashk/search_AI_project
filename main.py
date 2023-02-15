@@ -8,7 +8,7 @@ import sklearn
 
 from Models.scikitlearn_wrapper import SklearnClassifier
 from Utils.anomaly_utils import get_ocsvm
-#from Utils.attack_utils import get_hopskipjump, get_constrains
+from Utils.attack_utils import get_constrains #,get_hopskipjump
 from Utils.data_utils import split_to_datasets, preprocess_ICU, preprocess_RADCOM
 from Utils.models_utils import train_GB_model, train_RF_model, train_XGB_model
 from sklearn.svm import OneClassSVM
@@ -46,8 +46,8 @@ def main_run_attack():
 
     # target_models = [RF]
     # target_models_names = ["RF"]
-    target_models = [GB, RF]
-    target_models_names = ["GB", "RF"]
+    target_models = [RF] #[GB, RF]
+    target_models_names = ["RF"] #["GB", "RF"]
 
     for j, target in enumerate(target_models):
         # Attack preparation
@@ -59,7 +59,7 @@ def main_run_attack():
         np.random.seed(seed)
 
         # Attack
-        attack = get_hopskipjump(target_model, constrains, columns_names)
+        attack = get_s_annealing(target_model, constrains, columns_names)
         adv = attack.generate(x=attack_x.to_numpy(), perturbability=perturbability)
         original = attack_x.to_numpy()
         true_label = datasets.get("y_test").transpose().values.tolist()[0]
@@ -76,7 +76,7 @@ def main_run_attack():
             results_dict.update({col: adv[:, i]})
 
         pd.DataFrame(results_dict).to_csv(
-            results_path + "/hopskipjump_{}_exclude_{}.csv".format(target_models_names[j], exclude), index=False)
+            results_path + "/SA_{}.csv".format(target_models_names[j]), index=False)
 
 import parse
 if __name__ == '__main__':
