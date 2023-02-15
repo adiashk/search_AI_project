@@ -152,7 +152,7 @@ def train_RF_model(data_path, seed=42, val_size=0.2, n_estimators=100, max_depth
     return RF, eval
 
 
-def train_XGB_model(data_path, seed=42, val_size=0.2, n_estimators=30, learning_rate=0.1, max_depth=3, saving_path="Models/",
+def train_XGB_model(data_path, seed=42, val_size=0.2, n_estimators=70, learning_rate=0.1, max_depth=8, saving_path="Models/",
                    datasets=None, model_type="target", exclude=None):
     if datasets is None:
         data_raw = pd.read_csv(data_path + "/df_sota_train.csv")

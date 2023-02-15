@@ -52,9 +52,9 @@ if __name__ == '__main__':
         model_name_GB = "{}_{}_GB_exclude_{}_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude, seed, 0.01, 500, 9)
         model_name_RF = "{}_{}_RF_exclude_{}_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude,seed, 500, 9)
     else:
-        model_name_GB = "{}_{}_GB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, seed, 0.1, 100, 3)
+        model_name_GB = "{}_{}_GB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, seed, 0.01, 100, 3)
         model_name_RF = "{}_{}_RF_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,seed, 100, 3)
-        model_name_XGB = "{}_{}_XGB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,seed, 0.01, 30, 3)
+        model_name_XGB = "{}_{}_XGB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,seed, 0.05, 30, 5)
     
     GB  = pickle.load(open(models_path + "/" + model_name_GB + "_no_year.pkl", 'rb'))
     RF  = pickle.load(open(models_path + "/" + model_name_RF + "_no_year.pkl", 'rb'))
