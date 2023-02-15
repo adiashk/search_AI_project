@@ -52,13 +52,13 @@ if __name__ == '__main__':
         model_name_GB = "{}_{}_GB_exclude_{}_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude, seed, 0.01, 500, 9)
         model_name_RF = "{}_{}_RF_exclude_{}_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude,seed, 500, 9)
     else:
-        model_name_GB = "{}_{}_GB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, seed, 0.01, 500, 9)
-        model_name_RF = "{}_{}_RF_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,seed, 500, 9)
-        model_name_XGB = "{}_{}_XGB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,seed, 0.1, 70, 8)
+        model_name_GB = "{}_{}_GB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, seed, 0.1, 100, 3)
+        model_name_RF = "{}_{}_RF_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,seed, 100, 3)
+        model_name_XGB = "{}_{}_XGB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,seed, 0.01, 30, 3)
     
-    GB  = pickle.load(open(models_path + "/" + model_name_GB + ".pkl", 'rb'))
-    RF  = pickle.load(open(models_path + "/" + model_name_RF + ".pkl", 'rb'))
-    XGB  = pickle.load(open(models_path + "/" + model_name_XGB + ".pkl", 'rb'))
+    GB  = pickle.load(open(models_path + "/" + model_name_GB + "_no_year.pkl", 'rb'))
+    RF  = pickle.load(open(models_path + "/" + model_name_RF + "_no_year.pkl", 'rb'))
+    XGB  = pickle.load(open(models_path + "/" + model_name_XGB + "_no_year.pkl", 'rb'))
     
     target_models = [GB, RF, XGB]
     target_models_names = ["GB", "RF", "XGB"]
@@ -94,7 +94,7 @@ if __name__ == '__main__':
         plt.show()
         plt.close()
 
-    
+        """
         #if ('ICU' in data_name): 
         data_raw = x_val.copy()
         data_raw['pred'] = y_val 
@@ -107,7 +107,7 @@ if __name__ == '__main__':
         y_val = pd.DataFrame(data_raw["pred"])
         '''
         
-        eval = model_evaluation(model=GB.predict,
+        eval = model_evaluation(model=target.predict,
                                 val_x=x_val,
                                 val_y=y_val,
                                 #saving_path=saving_path,
@@ -123,7 +123,7 @@ if __name__ == '__main__':
             y_val = pd.DataFrame(data_raw["pred"])
             model_name= model_name +'_undersamptest'
 
-            eval_under = model_evaluation(model=GB.predict,
+            eval_under = model_evaluation(model=target.predict,
                                     val_x=x_val,
                                     val_y=y_val,
                                     #saving_path=saving_path,
@@ -158,7 +158,7 @@ if __name__ == '__main__':
         y_val_0 = y_val [y_val.pred == 0].copy()
         x_val_1 = x_val [y_val.pred == 1].copy()
         y_val_1 = y_val [y_val.pred == 1].copy()
-        eval_0 = model_evaluation(model=GB.predict,
+        eval_0 = model_evaluation(model=target.predict,
                                 val_x=x_val_0,
                                 val_y=y_val_0,
                                 #saving_path=saving_path,
@@ -166,9 +166,10 @@ if __name__ == '__main__':
 
         # eval only class 1
         model_name=model_name+'_1'
-        eval_1 = model_evaluation(model=GB.predict,
+        eval_1 = model_evaluation(model=target.predict,
                                 val_x=x_val_1,
                                 val_y=y_val_1,
                                 #saving_path=saving_path,
                                 model_name=model_name)
         print ('s')
+        """

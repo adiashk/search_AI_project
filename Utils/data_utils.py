@@ -67,7 +67,7 @@ def split_to_datasets(raw_data_path, seed=42, val_size=0.25, surrgate_train_size
         }
         return datasets
   
-    data_raw = pd.read_csv(raw_data_path+'/after_preprocessing/RADCOM_after_preprocessing.csv').reset_index(drop=True)
+    data_raw = pd.read_csv(raw_data_path+'/after_preprocessing/RADCOM_after_preprocessing_no_year.csv').reset_index(drop=True)
     if "Unnamed: 0" in data_raw.columns:
         data_raw = data_raw.drop(["Unnamed: 0"], axis=1)
 
@@ -157,15 +157,15 @@ def split_to_datasets(raw_data_path, seed=42, val_size=0.25, surrgate_train_size
     if save_path is not None:
         for key in datasets.keys():
             if exclude is not None:
-                file_name = str(key) + "_exclude_{}_seed_{}_val_size_{}_surrgate_train_size_{}.csv".format(exclude,seed, val_size, surrgate_train_size)
+                file_name = str(key) + "_exclude_{}_seed_{}_val_size_{}_surrgate_train_size_{}_no_year.csv".format(exclude,seed, val_size, surrgate_train_size)
             else:
-                file_name = str(key) + "_seed_{}_val_size_{}_surrgate_train_size_{}.csv".format(seed, val_size, surrgate_train_size)
+                file_name = str(key) + "_seed_{}_val_size_{}_surrgate_train_size_{}_no_year.csv".format(seed, val_size, surrgate_train_size)
             cur_saving_path = save_path + "/" + file_name
             datasets.get(key).to_csv(cur_saving_path, index=False)
 
     # save edittitible features
     features = x_train_target.columns.to_frame()
-    features.to_csv(save_path+'/edittible_features.csv', index=False)
+    features.to_csv(save_path+'/edittible_features_no_year.csv', index=False)
 
     return datasets
 
@@ -861,11 +861,18 @@ def preprocess_RADCOM(init_data_path):
 
     # datetime features
     train['start_of_peak'] = pd.to_datetime(train['start_of_peak'])
-    train['start_of_peak_date'] = train['start_of_peak'].apply(lambda x: x.strftime('%Y%m%d')) 
-    train['start_of_peak_time'] = train['start_of_peak'].apply(lambda x: x.strftime('%H%M%S')) 
+    # year is not importent
+    train['start_of_peak_month'] = train['start_of_peak'].apply(lambda x: x.strftime('%m')) 
+    train['start_of_peak_day'] = train['start_of_peak'].apply(lambda x: x.strftime('%d')) 
+    train['start_of_peak_hour'] = train['start_of_peak'].apply(lambda x: x.strftime('%H'))
+    train['start_of_peak_minute'] = train['start_of_peak'].apply(lambda x: x.strftime('%M')) 
+    train['start_of_peak_second'] = train['start_of_peak'].apply(lambda x: x.strftime('%S'))  
     train['end_of_peak'] = pd.to_datetime(train['end_of_peak'])
-    train['end_of_peak_date'] = train['end_of_peak'].apply(lambda x: x.strftime('%Y%m%d')) 
-    train['end_of_peak_time'] = train['end_of_peak'].apply(lambda x: x.strftime('%H%M%S')) 
+    train['end_of_peak_month'] = train['end_of_peak'].apply(lambda x: x.strftime('%m')) 
+    train['end_of_peak_day'] = train['end_of_peak'].apply(lambda x: x.strftime('%d')) 
+    train['end_of_peak_hour'] = train['end_of_peak'].apply(lambda x: x.strftime('%H'))
+    train['end_of_peak_minute'] = train['end_of_peak'].apply(lambda x: x.strftime('%M')) 
+    train['end_of_peak_second'] = train['end_of_peak'].apply(lambda x: x.strftime('%S'))  
    
     # SCALE
 
@@ -900,7 +907,7 @@ def preprocess_RADCOM(init_data_path):
     final["pred"] = labels
     #final.to_csv("/".join(init_data_path.split("/")[:-1]) + "/after_preprocessing/ICU_after_preprocessing_impute_80.csv",
     #             index=False)
-    final.to_csv(init_data_path+ "/after_preprocessing/RADCOM_after_preprocessing.csv",index=False)
+    final.to_csv(init_data_path+ "/after_preprocessing/RADCOM_after_preprocessing_no_year.csv",index=False)
 
 '''   
 from sklearn.metrics import log_loss, roc_auc_score, mean_squared_error
