@@ -4,6 +4,8 @@ Simulated Annealing Class
 import pickle
 import random
 import math
+
+import numpy as np
 import sklearn
 import pandas as pd
 
@@ -44,7 +46,7 @@ class SimulatedAnnealing:
 
     def run(self):
         while not self.isTerminationCriteriaMet():
-            # iterate that number of times
+            # iterate that number of times, based on the temperature
             for i in range(self.iterationPerTemp):
                 # get all the neighbors
                 neighbors = self.neighborOperator(self.solution)
@@ -63,10 +65,20 @@ class SimulatedAnnealing:
             self.decrementRule()
 
 df = pd.read_csv('Datasets/RADCOM/after_preprocessing/RADCOM_after_preprocessing.csv')
-df = df.drop(columns=['pred'])
-record = df.iloc[1]
+x_df = df.drop(columns=['pred'])
+y_df = df['pred']
+record = x_df.iloc[1]
+record_pred = y_df.iloc[1]
+# prob_loc = np.abs(1 - record_pred)
+
 model = pickle.load(open('Models/RADCOM/RADCOM_target_RF_seed-42_estimators-500_maxdepth-9.pkl', 'rb'))
-print(model.predict(record.values.reshape(1, -1))[0])
+print(model.predict_proba(record.values.reshape(1, -1))[0][int(record_pred)])
+
+
+
+
+
+
 # SA = SimulatedAnnealing(initialSolution=init_path, solutionEvaluator=path_cost, initialTemp=100, finalTemp=0.01,
 #                         tempReduction="linear", neighborOperator=neighbor_operator, iterationPerTemp=100, alpha=10,
 #                         beta=5)
