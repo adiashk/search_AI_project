@@ -103,10 +103,13 @@ class SimulatedAnnealing:
         self.alpha = alpha
         self.beta = beta
         self.neighborOperator = self.neighbor_operator_func
-        self.path = pd.DataFrame()
-        self.path = pd.concat([self.path, self.solution], axis=1)
-        self.path_score = []
-        self.path_score.append(self.evaluate(self.solution.values.reshape(1, -1))[0][int(record_pred)])
+        # self.solution.to_csv("solution.csv")
+        df_temp = pd.DataFrame(self.solution).T
+        df_temp.to_csv("solution.csv", index=False)
+        # self.path = pd.DataFrame()
+        # self.path = pd.concat([self.path, self.solution], axis=1)
+        # self.path_score = []
+        # self.path_score.append(self.evaluate(self.solution.values.reshape(1, -1))[0][int(record_pred)])
 
         if tempReduction == "linear":
             self.decrementRule = self.linearTempReduction
@@ -141,9 +144,6 @@ class SimulatedAnnealing:
                     for change in feature_range[feature]:
                         neighbor = current.copy()
                         if neighbor[feature] != change:  # different value for specific feature
-                            # TODO: check if the neighbor is already in the path
-                            # if (self.path == self.solution).all(axis=1).sum():
-                            #     continue
                             neighbor[feature] = change
                             neighbors.append(neighbor)
 
@@ -160,25 +160,35 @@ class SimulatedAnnealing:
                 # print("Number of neighbors: ", len(neighbors))
                 # pick a random neighbor
                 newSolution = random.choice(neighbors)
-                # get the cost between the two solutions
+                #  check if the neighbor is already in the path
+                df_temp = pd.DataFrame(newSolution).T
+                df_old_sols = pd.read_csv("solution.csv")
+                all_df = pd.concat([df_old_sols, df_temp], axis=0, ignore_index=True)
+                old_shape = all_df.shape
+                all_df.drop_duplicates(inplace=True)
+                if old_shape != all_df.shape:  # duplicate -> new neighbor in path already -> do not add to neighbors
+                    continue
+                # no duplicate -> new neighbor not in path:
 
+                # get the cost between the two solutions
                 # cost = self.evaluate(self.solution) - self.evaluate(newSolution)
                 curr_sol_val = self.evaluate(self.solution.values.reshape(1, -1))[0][int(record_pred)]
                 new_sol_val = self.evaluate(newSolution.values.reshape(1, -1))[0][int(record_pred)]
                 cost = curr_sol_val - new_sol_val
                 # if the new solution is better, accept it
-                if cost > 0:
+                if cost >= 0:
                     self.solution = newSolution
-                    self.path = pd.concat([self.path, self.solution], axis=1)
-                    self.path_score.append(new_sol_val)
-                elif cost == 0:
-                    self.solution = newSolution
+                    # self.path = pd.concat([self.path, self.solution], axis=1)
+                    # self.path_score.append(new_sol_val)
+                    all_df.to_csv("solution.csv", index=False)
+
                 # if the new solution is not better, accept it with a probability of e^(-cost/temp)
                 else:
                     if random.uniform(0, 1) < math.exp(-cost / self.currTemp):
                         self.solution = newSolution
-                        self.path = pd.concat([self.path, self.solution], axis=1)
-                        self.path_score.append(new_sol_val)
+                        # self.path = pd.concat([self.path, self.solution], axis=1)
+                        # self.path_score.append(new_sol_val)
+                        all_df.to_csv("solution.csv", index=False)
             print("Current Temperature: ", self.currTemp)
             print("Current Cost: ", self.evaluate(self.solution.values.reshape(1, -1))[0][int(record_pred)])
             # decrement the temperature
