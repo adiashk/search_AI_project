@@ -189,9 +189,9 @@ class SimulatedAnnealing:
 
                 newSolution = reandom_neighbors[np.argmin(self.evaluate(reandom_neighbors), axis=0)[self.record_true_class]]
 
-                df_temp = pd.DataFrame(newSolution).T
-                df_old_sols = pd.read_csv(self.path_to_file)
-                all_df = pd.concat([df_old_sols, df_temp], axis=0, ignore_index=True)
+                # df_temp = pd.DataFrame(newSolution).T
+                # df_old_sols = pd.read_csv(self.path_to_file)
+                # all_df = pd.concat([df_old_sols, df_temp], axis=0, ignore_index=True)
                 '''
                 #  check if the neighbor is already in the path
                 old_shape = all_df.shape
@@ -214,7 +214,7 @@ class SimulatedAnnealing:
                     self.solution = newSolution
                     # self.path = pd.concat([self.path, self.solution], axis=1)
                     # self.path_score.append(new_sol_val)
-                    all_df.to_csv(self.path_to_file, index=False)
+                    # all_df.to_csv(self.path_to_file, index=False)
                     if new_sol_val < self.max_cost:  # new best solution
                         self.max_cost = new_sol_val
                         self.best_solution = self.solution
@@ -264,9 +264,11 @@ if __name__ == '__main__':
     # model = pickle.load(open('RADCOM_target_XGB_seed-42_lr-0.1_estimators-70_maxdepth-8', 'rb'))
     # constrains, perturbability = get_constrains(dataset_name, perturbability_path)
     
+    # x_attack = pd.DataFrame(np.array(pd.read_csv('Datasets/HATE/x_orig_attack.csv')))
+    # y_attack = pd.DataFrame(np.array(pd.read_csv('Datasets/HATE/y_orig_attack.csv')))
     x_attack = pd.read_csv('Datasets/HATE/x_orig_attack.csv')
     y_attack = pd.read_csv('Datasets/HATE/y_orig_attack.csv')
-    model = joblib.load(open('Models/HATE/gb_sota_model.pkl', 'rb'))
+    model = joblib.load(open('Models/HATE/rf_sota_model.pkl', 'rb'))
     perturbability = pd.read_csv(perturbability_path)
     feature_range = get_feature_range(dataset_name)
 
@@ -283,14 +285,14 @@ if __name__ == '__main__':
         prediction_pre_record = int(model.predict(record.values.reshape(1, -1))[0])
 
         if prediction_pre_record != int(record_true_class):
-            print("record is already misclassified")
-            i -= 1
+            print("record is misclassified")
+            # i -= 1
             continue
         print("i: ", i)
         print("record id: ", record_id)
         print("prediction: ", prediction_pre_record)
         print("prediction prob: ", model.predict_proba(record.values.reshape(1, -1))[0])
-        i=i+1
+        i += 1
         SA = SimulatedAnnealing(initialSolution=record, solutionEvaluator=model.predict_proba,
                                 initialTemp=100, finalTemp=0.01,
                                 tempReduction="linear",
