@@ -12,6 +12,7 @@ import pandas as pd
 import configparser
 import random
 from pathlib import Path
+import joblib
 
 from Utils.attack_utils import get_constrains
 
@@ -90,7 +91,13 @@ def get_feature_range(dataset_name):
             'total_sum_of_data_to_sec': range(0, 1000, 10),  # 1000000, 1 # 17
 
         }
-
+    elif dataset_name == "HATE":
+        feature_range = {
+            'warmth_empath': np.linspace(0, 1, 100),
+            'work_empath': np.linspace(0, 1, 100),
+            'youth_empath': np.linspace(0, 1, 100),
+            'zest_empath': np.linspace(0, 1, 100),
+        }
     return feature_range
 
 
@@ -173,7 +180,7 @@ class SimulatedAnnealing:
                 # newSolution = random.choice(neighbors)
                 '''
                 # get 10 random neighbors and pick the best one -> minimal cost
-                reandom_neighbors = random.sample(neighbors, 500)
+                reandom_neighbors = random.sample(neighbors, 50)
                 # predict the cost of each neighbor and get the solution with the minimal cost -> the best neighbor
                 # neighbors_cost = []
                 # for neighbor in reandom_neighbors:
@@ -250,18 +257,23 @@ if __name__ == '__main__':
     exclude = configurations["exclude"]
     dataset_name = raw_data_path.split("/")[1]
 
-    x_attack = pd.read_csv('Datasets/RADCOM/x_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
-    y_attack = pd.read_csv('Datasets/RADCOM/y_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
+    #x_attack = pd.read_csv('Datasets/RADCOM/x_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
+    #y_attack = pd.read_csv('Datasets/RADCOM/y_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
     # model = pickle.load(open('Models/RADCOM/RADCOM_target_GB_seed-42_lr-0.01_estimators-500_maxdepth-9.pkl', 'rb'))
-    model = pickle.load(open('Models/RADCOM/RADCOM_target_RF_seed-42_estimators-500_maxdepth-9.pkl', 'rb'))
+    #model = pickle.load(open('Models/RADCOM/RADCOM_target_RF_seed-42_estimators-500_maxdepth-9.pkl', 'rb'))
     # model = pickle.load(open('RADCOM_target_XGB_seed-42_lr-0.1_estimators-70_maxdepth-8', 'rb'))
     # constrains, perturbability = get_constrains(dataset_name, perturbability_path)
+    
+    x_attack = pd.read_csv('Datasets/HATE/x_orig_attack.csv')
+    y_attack = pd.read_csv('Datasets/HATE/y_orig_attack.csv')
+    model = joblib.load(open('Models/HATE/gb_sota_model.pkl', 'rb'))
     perturbability = pd.read_csv(perturbability_path)
     feature_range = get_feature_range(dataset_name)
 
     model_name = model.__class__.__name__
     print("model name: ", model_name)
-    for i in range(10):  # 10 random records to attack
+    i=0
+    while i<10:  # 10 random records to attack
 
         record_id = random.randint(0, x_attack.shape[0] - 1)  # get random record to attack:
         # record_id = 13740
@@ -278,7 +290,7 @@ if __name__ == '__main__':
         print("record id: ", record_id)
         print("prediction: ", prediction_pre_record)
         print("prediction prob: ", model.predict_proba(record.values.reshape(1, -1))[0])
-
+        i=i+1
         SA = SimulatedAnnealing(initialSolution=record, solutionEvaluator=model.predict_proba,
                                 initialTemp=100, finalTemp=0.01,
                                 tempReduction="linear",

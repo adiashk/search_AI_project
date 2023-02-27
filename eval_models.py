@@ -16,6 +16,7 @@ from Utils.data_utils import split_to_datasets, preprocess_ICU
 from Utils.models_utils import train_GB_model, train_RF_model
 from sklearn.svm import OneClassSVM
 import matplotlib.pyplot as plt
+import joblib
 
 def get_config():
     config = configparser.ConfigParser()
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     seed = int(configurations["seed"])
     exclude = configurations["exclude"]
     dataset_name = raw_data_path.split("/")[1]
-
+    '''
     #preprocess_ICU(raw_data_path)
 
     # import datasets
@@ -59,18 +60,21 @@ if __name__ == '__main__':
     GB  = pickle.load(open(models_path + "/" + model_name_GB + "_no_year.pkl", 'rb'))
     RF  = pickle.load(open(models_path + "/" + model_name_RF + "_no_year.pkl", 'rb'))
     XGB  = pickle.load(open(models_path + "/" + model_name_XGB + "_no_year.pkl", 'rb'))
+'''
+    GB = joblib.load(open(models_path + "/gb_sota_model.pkl", 'rb'))
+    RF = joblib.load(open(models_path + "/rf_sota_model.pkl", 'rb'))
     
-    target_models = [GB, RF, XGB]
-    target_models_names = ["GB", "RF", "XGB"]
-
+    target_models = [GB, RF]#, XGB]
+    target_models_names = ["GB", "RF"]#, "XGB"]
+    '''
     # prepare val data
     x_train = datasets["x_train_" + model_type]
     x_val = datasets["x_test"]
     y_train = datasets["y_train_" + model_type]
     y_val = datasets["y_test"]
-
+    
     features = x_train.columns.to_frame()
-
+    '''
     for j, target in enumerate(target_models):
         
         # show feature importance

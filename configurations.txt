@@ -1,18 +1,18 @@
 [DEFAULT]
 
-data_path = Datasets/RADCOM
+data_path = Datasets/HATE
     # HCDR # ICU #RADCOM
 
-raw_data_path = Datasets/RADCOM
+raw_data_path = Datasets/HATE
     # ICU/original/training_v2.csv
     # HATE/original/twitter_100_5000.csv
 
-perturbability_path = Datasets/RADCOM/edittible_features.csv
+perturbability_path = Datasets/HATE/edittible_features.csv
 # HATE/top_100_features.csv
 
-models_path = Models/RADCOM
+models_path = Models/HATE
 
-results_path = Results/RADCOM
+results_path = Results/HATE
     # HCDR # ICU
 
 seed = 42
