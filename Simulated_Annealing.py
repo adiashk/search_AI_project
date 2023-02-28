@@ -93,10 +93,28 @@ def get_feature_range(dataset_name):
         }
     elif dataset_name == "HATE":
         feature_range = {
-            'warmth_empath': np.linspace(0, 1, 100),
-            'work_empath': np.linspace(0, 1, 100),
-            'youth_empath': np.linspace(0, 1, 100),
-            'zest_empath': np.linspace(0, 1, 100),
+            'c_work_empath': np.linspace(0.1, 0.9, 100),
+            'normal_neigh': np.linspace(0.1, 0.9, 100),
+            'c_legend_empath': np.linspace(0.1, 0.9, 100),
+            'c_cleaning_empath': np.linspace(0.1, 0.9, 100),
+            'sleep_empath': np.linspace(0.1, 0.9, 100),
+            'c_furniture_empath': np.linspace(0.1, 0.9, 100),
+            'c_ridicule_empath': np.linspace(0.1, 0.9, 100),
+            'c_fire_empath': np.linspace(0.1, 0.9, 100),
+            'hate_neigh': np.linspace(0.1, 0.9, 100),
+        }
+
+    elif dataset_name == 'CREDIT':
+        feature_range = {
+            'PREV_ACTIVE_INSTALMENT_PAYMENT_DIFF_MEAN': np.linspace(0.1, 0.9, 100),
+            'PREV_Consumer_AMT_CREDIT_SUM': np.linspace(0.1, 0.9, 100),
+            #'PREV_NAME_CONTRACT_STATUS_Refused_MEAN': np.linspace(0.1, 0.9, 10),
+            'NAME_EDUCATION_TYPE': {0,0.25,0.5,0.75},
+            'AMT_ANNUITY': np.linspace(0.1, 0.9, 100),
+            'PREV_Cash_SIMPLE_INTERESTS_MEAN': np.linspace(0.1, 0.9, 100),
+            'CREDIT_TO_GOODS_RATIO': np.linspace(0.1, 0.9, 100),
+            'DAYS_EMPLOYED': np.linspace(0.1, 0.9, 100),
+            'CREDIT_TO_ANNUITY_RATIO': np.linspace(0.1, 0.9, 100),
         }
     return feature_range
 
@@ -125,6 +143,7 @@ class SimulatedAnnealing:
         df_temp.to_csv(self.path_to_file, index=False)
         self.max_cost = self.evaluate(self.solution.values.reshape(1, -1))[0][self.record_true_class]
         self.best_solution = self.solution
+        
 
         if tempReduction == "linear":
             self.decrementRule = self.linearTempReduction
@@ -164,7 +183,7 @@ class SimulatedAnnealing:
                             neighbors.append(neighbor)
 
         return neighbors
-
+    
     def run(self):
         while not self.isTerminationCriteriaMet():
             new_sol_value = 0
@@ -180,7 +199,7 @@ class SimulatedAnnealing:
                 # newSolution = random.choice(neighbors)
                 '''
                 # get 10 random neighbors and pick the best one -> minimal cost
-                reandom_neighbors = random.sample(neighbors, 50)
+                reandom_neighbors = random.sample(neighbors, 10)
                 # predict the cost of each neighbor and get the solution with the minimal cost -> the best neighbor
                 # neighbors_cost = []
                 # for neighbor in reandom_neighbors:
@@ -205,9 +224,10 @@ class SimulatedAnnealing:
                 curr_sol_val = self.evaluate(self.solution.values.reshape(1, -1))[0][self.record_true_class]
                 new_sol_val = self.evaluate(newSolution.values.reshape(1, -1))[0][self.record_true_class]
                 if new_sol_val < 0.5:
-                    print("find attacked sample!!!")
-                    print("Best Cost: ", new_sol_val)
-                    break
+                    #print("find attacked sample!!!")
+                    #print("Best Cost: ", new_sol_val)
+                    
+                    return 1
                 cost = curr_sol_val - new_sol_val
                 # if the new solution is better, accept it
                 if cost >= 0:
@@ -225,22 +245,24 @@ class SimulatedAnnealing:
 
                 # if the new solution is not better, accept it with a probability of e^(-cost/temp)
                 else:
-                    if random.uniform(0, 1) < math.exp(-cost / self.currTemp):
+                    if random.uniform(0, 0.7) < math.exp(-cost / (self.currTemp*2)):
                         self.solution = newSolution
                         # self.path = pd.concat([self.path, self.solution], axis=1)
                         # self.path_score.append(new_sol_val)
-                        all_df.to_csv(self.path_to_file, index=False)
-            print("Current Temperature: ", self.currTemp)
+                        #all_df.to_csv(self.path_to_file, index=False)
+            #print("Current Temperature: ", self.currTemp)
             print("Current Cost: ", self.evaluate(self.solution.values.reshape(1, -1))[0][self.record_true_class])
-
+            '''
             if new_sol_val > self.max_cost:  # current solution is not the best
                 self.currTemp += self.alpha  # increase temperature because we are not improving
                 self.solution = self.best_solution
-
+            '''
             # decrement the temperature
             self.decrementRule()
         if self.neighborOperator(self.solution) == 0:
             print('no neighbors')
+        return 0
+        
 
 
 
@@ -257,46 +279,66 @@ if __name__ == '__main__':
     exclude = configurations["exclude"]
     dataset_name = raw_data_path.split("/")[1]
 
-    #x_attack = pd.read_csv('Datasets/RADCOM/x_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
-    #y_attack = pd.read_csv('Datasets/RADCOM/y_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
-    # model = pickle.load(open('Models/RADCOM/RADCOM_target_GB_seed-42_lr-0.01_estimators-500_maxdepth-9.pkl', 'rb'))
-    #model = pickle.load(open('Models/RADCOM/RADCOM_target_RF_seed-42_estimators-500_maxdepth-9.pkl', 'rb'))
-    # model = pickle.load(open('RADCOM_target_XGB_seed-42_lr-0.1_estimators-70_maxdepth-8', 'rb'))
-    # constrains, perturbability = get_constrains(dataset_name, perturbability_path)
-    
-    # x_attack = pd.DataFrame(np.array(pd.read_csv('Datasets/HATE/x_orig_attack.csv')))
-    # y_attack = pd.DataFrame(np.array(pd.read_csv('Datasets/HATE/y_orig_attack.csv')))
-    x_attack = pd.read_csv('Datasets/HATE/x_orig_attack.csv')
-    y_attack = pd.read_csv('Datasets/HATE/y_orig_attack.csv')
-    model = joblib.load(open('Models/HATE/rf_sota_model.pkl', 'rb'))
+    if ('RADCOM' in dataset_name):
+        x_attack = pd.read_csv('Datasets/RADCOM/x_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
+        y_attack = pd.read_csv('Datasets/RADCOM/y_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
+        # model = pickle.load(open('Models/RADCOM/RADCOM_target_GB_seed-42_lr-0.01_estimators-500_maxdepth-9.pkl', 'rb'))
+        model = pickle.load(open('Models/RADCOM/RADCOM_target_RF_seed-42_estimators-500_maxdepth-9.pkl', 'rb'))
+        # model = pickle.load(open('RADCOM_target_XGB_seed-42_lr-0.1_estimators-70_maxdepth-8', 'rb'))
+    elif ('HATE' in dataset_name):
+        #x_attack = pd.read_csv('Datasets/HATE/x_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
+        #y_attack = pd.read_csv('Datasets/HATE/y_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
+        x_attack = pd.read_csv('Datasets/HATE/x_orig_attack.csv')
+        y_attack = pd.read_csv('Datasets/HATE/y_orig_attack.csv')
+        #model = pickle.load(open('Models/HATE/HATE_target_RF_seed-42_estimators-150_maxdepth-5.pkl', 'rb'))
+        model = pickle.load(open('Models/HATE/HATE_target_GB_seed-42_lr-1.0_estimators-100_maxdepth-3.pkl', 'rb'))
+    elif ('CREDIT' in dataset_name):
+        x_attack = pd.read_csv('Datasets/CREDIT/x_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
+        y_attack = pd.read_csv('Datasets/CREDIT/y_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
+        #x_attack = pd.read_csv('Datasets/HATE/x_orig_attack.csv')
+        #y_attack = pd.read_csv('Datasets/HATE/y_orig_attack.csv')
+        model = pickle.load(open('Models/CREDIT/CREDIT_target_RF_seed-42_estimators-200_maxdepth-9.pkl', 'rb'))
+        #model = pickle.load(open('Models/CREDIT/CREDIT_target_GB_seed-42_lr-1.0_estimators-100_maxdepth-3.pkl', 'rb'))
+
     perturbability = pd.read_csv(perturbability_path)
     feature_range = get_feature_range(dataset_name)
 
     model_name = model.__class__.__name__
     print("model name: ", model_name)
     i=0
-    while i<10:  # 10 random records to attack
+    num_success = 0
 
-        record_id = random.randint(0, x_attack.shape[0] - 1)  # get random record to attack:
+    while i<x_attack.shape[0]:  # 10 random records to attack
+
+        #record_id = random.randint(0, x_attack.shape[0] - 1)  # get random record to attack:
         # record_id = 13740
-        record = x_attack.iloc[record_id]
-        record_true_class = y_attack.iloc[record_id]
-        print("true label: ", int(record_true_class))
+        #record = x_attack.iloc[record_id]
+        record = np.array(x_attack.iloc[i])
+        record_true_class = y_attack.iloc[i]
+        #print("true label: ", int(record_true_class))
         prediction_pre_record = int(model.predict(record.values.reshape(1, -1))[0])
+       
+        
 
         if prediction_pre_record != int(record_true_class):
-            print("record is misclassified")
+            #print("record is misclassified")
             # i -= 1
             continue
-        print("i: ", i)
-        print("record id: ", record_id)
-        print("prediction: ", prediction_pre_record)
-        print("prediction prob: ", model.predict_proba(record.values.reshape(1, -1))[0])
+        #print("i: ", i)
+        #print("record id: ", record_id)
+        #print("prediction: ", prediction_pre_record)
+        #print("prediction prob: ", model.predict_proba(record.values.reshape(1, -1))[0])
         i += 1
         SA = SimulatedAnnealing(initialSolution=record, solutionEvaluator=model.predict_proba,
-                                initialTemp=100, finalTemp=0.01,
+                                initialTemp=200, finalTemp=0.01,
                                 tempReduction="linear",
-                                iterationPerTemp=100, alpha=10, beta=5, record_id=record_id, record_true_class=int(record_true_class), model_name=model_name)
-        SA.run()
-        print("final solution: ", SA.max_cost)
-        print("=======================+======================")
+                                iterationPerTemp=100, alpha=10, beta=5, record_id=i, record_true_class=int(record_true_class), 
+                                model_name=model_name)
+        success = SA.run()
+        if (success == 1):
+            num_success = num_success+1
+        #print("final solution for sample : ", SA.max_cost)
+        print("======================+=======================")
+    print(i, " samples classified well")
+    print(num_success, " samples success attack")
+    
