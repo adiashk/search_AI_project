@@ -64,6 +64,12 @@ if __name__ == '__main__':
     GB = joblib.load(open(models_path + "/gb_sota_model.pkl", 'rb'))
     RF = joblib.load(open(models_path + "/rf_sota_model.pkl", 'rb'))
     
+    RF = joblib.load(open('Models/HATE/HATE_target_RF_seed-42_estimators-150_maxdepth-5.pkl', 'rb'))
+    GB = joblib.load(open('Models/HATE/HATE_target_GB_seed-42_lr-1.0_estimators-100_maxdepth-3.pkl', 'rb'))
+
+    RF = joblib.load(open('Models/CREDIT/CREDIT_target_RF_seed-42_estimators-200_maxdepth-9.pkl', 'rb'))
+    GB = joblib.load(open('Models/CREDIT/CREDIT_target_GB_seed-42_lr-1.0_estimators-100_maxdepth-3.pkl', 'rb'))
+
     target_models = [GB, RF]#, XGB]
     target_models_names = ["GB", "RF"]#, "XGB"]
     '''
