@@ -299,4 +299,4 @@ if __name__ == '__main__':
                                 iterationPerTemp=100, alpha=10, beta=5, record_id=record_id, record_true_class=int(record_true_class), model_name=model_name)
         SA.run()
         print("final solution: ", SA.max_cost)
-        print("=============================================")
+        print("=======================+======================")
