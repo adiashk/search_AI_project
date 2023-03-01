@@ -9,7 +9,7 @@ from xgboost import XGBClassifier
 from sklearn.model_selection  import GridSearchCV
 
 
-def train_GB_model(data_path, seed=42, val_size=0.2, learning_rate=0.1, n_estimators=100, max_depth=3,
+def train_GB_model(data_path, seed=42, val_size=0.2, learning_rate=1.0, n_estimators=100, max_depth=3,
                    saving_path="Models/", datasets=None, model_type="target", exclude=None):
     if datasets is None:
         data_raw = pd.read_csv(data_path + "/df_sota_train.csv")
@@ -38,7 +38,7 @@ def train_GB_model(data_path, seed=42, val_size=0.2, learning_rate=0.1, n_estima
         model_name = "{}_{}_GB_exclude_{}_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,
                                                                                           exclude, seed, learning_rate,
                                                                                            n_estimators, max_depth)
-    pickle.dump(GB, open(saving_path + model_name + "_no_year.pkl", 'wb'))                                                                                     
+    pickle.dump(GB, open(saving_path + model_name + ".pkl", 'wb'))                                                                                     
 
     if ('ICU' in data_name): 
         data_raw = x_val
@@ -108,7 +108,7 @@ def train_RF_model(data_path, seed=42, val_size=0.2, n_estimators=100, max_depth
     else:
         model_name = "{}_{}_RF_exclude_{}_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,  exclude, seed, n_estimators, max_depth)
 
-    pickle.dump(RF, open(saving_path + model_name + "_no_year.pkl", 'wb'))
+    pickle.dump(RF, open(saving_path + model_name + ".pkl", 'wb'))
 
     if ('ICU' in data_name): 
         data_raw = x_val
@@ -201,7 +201,7 @@ def train_XGB_model(data_path, seed=42, val_size=0.2, n_estimators=70, learning_
     else:
         model_name = "{}_{}_XGB_exclude_{}_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,  exclude, seed, learning_rate, n_estimators, max_depth)
 
-    pickle.dump(XGB, open(saving_path + model_name + "_no_year.pkl", 'wb'))
+    pickle.dump(XGB, open(saving_path + model_name + ".pkl", 'wb'))
 
     if ('ICU' in data_name): 
         data_raw = x_val

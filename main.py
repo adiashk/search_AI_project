@@ -59,7 +59,7 @@ def main_run_attack():
         np.random.seed(seed)
 
         # Attack
-        attack = get_s_annealing(target_model, constrains, columns_names)
+        #attack = get_s_annealing(target_model, constrains, columns_names)
         adv = attack.generate(x=attack_x.to_numpy(), perturbability=perturbability)
         original = attack_x.to_numpy()
         true_label = datasets.get("y_test").transpose().values.tolist()[0]
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     exclude = configurations["exclude"]
     dataset_name = raw_data_path.split("/")[1]
 
-    preprocess_RADCOM(raw_data_path)
+    #preprocess_RADCOM(raw_data_path)
     
     # Train models
     if exclude == "None":
@@ -113,12 +113,15 @@ if __name__ == '__main__':
     for j, target in enumerate(target_models):
         # Attack preparation
         attack_x = datasets.get("x_test")
-        target_model = SklearnClassifier(model=target, columns=attack_x.columns)
-        constrains, perturbability = get_constrains(dataset_name, perturbability_path)
+        #target_model = SklearnClassifier(model=target, columns=attack_x.columns)
+        target_model = target
+        #constrains, perturbability = get_constrains(dataset_name, perturbability_path)
         columns_names = list(attack_x.columns)
         random.seed(seed)
         np.random.seed(seed)
 
+
+        '''
         # Attack
         attack = get_hopskipjump(target_model, constrains, columns_names)
         adv = attack.generate(x=attack_x.to_numpy(dtype=np.float64), perturbability=perturbability)
@@ -138,7 +141,7 @@ if __name__ == '__main__':
 
         pd.DataFrame(results_dict).to_csv(
             results_path + "/hopskipjump_{}_exclude_{}.csv".format(target_models_names[j], exclude), index=False)
-
+        '''
     #     ______Anomaly______
     # for j, target in enumerate(target_models):
     #     train_x = datasets["x_train_target"]

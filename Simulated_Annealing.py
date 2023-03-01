@@ -15,7 +15,8 @@ from pathlib import Path
 import joblib
 
 from Utils.attack_utils import get_constrains
-
+from Models.scikitlearn_wrapper import SklearnClassifier
+from Utils.data_utils import split_to_datasets
 
 def get_config():
     config = configparser.ConfigParser()
@@ -93,6 +94,7 @@ def get_feature_range(dataset_name):
         }
     elif dataset_name == "HATE":
         feature_range = {
+            '''
             'c_work_empath': np.linspace(0.1, 0.9, 100),
             'normal_neigh': np.linspace(0.1, 0.9, 100),
             'c_legend_empath': np.linspace(0.1, 0.9, 100),
@@ -102,6 +104,18 @@ def get_feature_range(dataset_name):
             'c_ridicule_empath': np.linspace(0.1, 0.9, 100),
             'c_fire_empath': np.linspace(0.1, 0.9, 100),
             'hate_neigh': np.linspace(0.1, 0.9, 100),
+            '''
+            'sports_empath': np.linspace(0.1, 0.9, 100),
+            'statuses_count': np.linspace(0, 1000, 10),
+            'surprise_empath': np.linspace(0.1, 0.9, 100),
+            'tourism_empath': np.linspace(0.1, 0.9, 100),
+            'urban_empath': np.linspace(0.1, 0.9, 100),
+            'vacation_empath': np.linspace(0.1, 0.9, 100),
+            'warmth_empath': np.linspace(0.1, 0.9, 100),
+            'work_empath': np.linspace(0.1, 0.9, 100),
+            'youth_empath': np.linspace(0.1, 0.9, 100),
+            'zest_empath': np.linspace(0.1, 0.9, 100),
+
         }
 
     elif dataset_name == 'CREDIT':
@@ -224,7 +238,7 @@ class SimulatedAnnealing:
                 curr_sol_val = self.evaluate(self.solution.values.reshape(1, -1))[0][self.record_true_class]
                 new_sol_val = self.evaluate(newSolution.values.reshape(1, -1))[0][self.record_true_class]
                 if new_sol_val < 0.5:
-                    #print("find attacked sample!!!")
+                    print("find attacked sample!!!")
                     #print("Best Cost: ", new_sol_val)
                     
                     return 1
@@ -279,6 +293,10 @@ if __name__ == '__main__':
     exclude = configurations["exclude"]
     dataset_name = raw_data_path.split("/")[1]
 
+    datasets = split_to_datasets(raw_data_path, save_path=data_path)
+    x_attack = datasets.get("x_test")
+    y_attack = datasets.get("y_test")
+
     if ('RADCOM' in dataset_name):
         x_attack = pd.read_csv('Datasets/RADCOM/x_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
         y_attack = pd.read_csv('Datasets/RADCOM/y_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
@@ -286,11 +304,13 @@ if __name__ == '__main__':
         model = pickle.load(open('Models/RADCOM/RADCOM_target_RF_seed-42_estimators-500_maxdepth-9.pkl', 'rb'))
         # model = pickle.load(open('RADCOM_target_XGB_seed-42_lr-0.1_estimators-70_maxdepth-8', 'rb'))
     elif ('HATE' in dataset_name):
-        #x_attack = pd.read_csv('Datasets/HATE/x_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
-        #y_attack = pd.read_csv('Datasets/HATE/y_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
-        x_attack = pd.read_csv('Datasets/HATE/x_orig_attack.csv')
-        y_attack = pd.read_csv('Datasets/HATE/y_orig_attack.csv')
-        #model = pickle.load(open('Models/HATE/HATE_target_RF_seed-42_estimators-150_maxdepth-5.pkl', 'rb'))
+        x_attack = pd.read_csv('Datasets/HATE/x_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
+        y_attack = pd.read_csv('Datasets/HATE/y_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
+        #x_attack = pd.read_csv('Datasets/HATE/x_orig_attack.csv')
+        #y_attack = pd.read_csv('Datasets/HATE/y_orig_attack.csv')
+        #model = joblib.load('Models/HATE/rf_sota_model.pkl')
+        model = pickle.load(open('Models/HATE/HATE_target_RF_seed-42_estimators-100_maxdepth-3.pkl', 'rb'))
+        #model = pickle.load(open('Models/HATE/HATE_target_XGB_seed-42_lr-0.1_estimators-70_maxdepth-8.pkl', 'rb'))
         model = pickle.load(open('Models/HATE/HATE_target_GB_seed-42_lr-1.0_estimators-100_maxdepth-3.pkl', 'rb'))
     elif ('CREDIT' in dataset_name):
         x_attack = pd.read_csv('Datasets/CREDIT/x_test_seed_42_val_size_0.25_surrgate_train_size_0.5.csv')
@@ -308,20 +328,35 @@ if __name__ == '__main__':
     i=0
     num_success = 0
 
+    #target_model = SklearnClassifier(model=model, columns=x_attack.columns)
+    #columns_names = list(x_attack.columns)
+    
+    preds = model.predict(x_attack)
+    #x_attack = attack_x.copy().loc[attack_y['pred'].values == preds]
+    #y_attack = attack_y.copy().loc[attack_y['pred'].values == preds]
+    #preds_e = preds.copy()[attack_y['pred'].values == preds]
+
+    #ise = np.equal(preds_e,y_attack.values)
     while i<x_attack.shape[0]:  # 10 random records to attack
 
         #record_id = random.randint(0, x_attack.shape[0] - 1)  # get random record to attack:
         # record_id = 13740
         #record = x_attack.iloc[record_id]
-        record = np.array(x_attack.iloc[i])
-        record_true_class = y_attack.iloc[i]
+        record = x_attack.loc[i]
+        record_true_class = int(y_attack.values[i][0])
+        record_true_c = int(y_attack.loc[i])
         #print("true label: ", int(record_true_class))
-        prediction_pre_record = int(model.predict(record.values.reshape(1, -1))[0])
        
+        prediction_record = model.predict(record.values.reshape(1, -1))[0]
+        if (preds[i] == prediction_record):
+            print('good')
         
+        prediction_pre_record = int(model.predict(record.values.reshape(1, -1))[0])
+ 
+        #prediction_pre_record = int(model.predict(record.to_numpy()))
 
-        if prediction_pre_record != int(record_true_class):
-            #print("record is misclassified")
+        if prediction_pre_record != int(record_true_c):
+            print("record is misclassified")
             # i -= 1
             continue
         #print("i: ", i)
@@ -330,7 +365,7 @@ if __name__ == '__main__':
         #print("prediction prob: ", model.predict_proba(record.values.reshape(1, -1))[0])
         i += 1
         SA = SimulatedAnnealing(initialSolution=record, solutionEvaluator=model.predict_proba,
-                                initialTemp=200, finalTemp=0.01,
+                                initialTemp=100, finalTemp=0.01,
                                 tempReduction="linear",
                                 iterationPerTemp=100, alpha=10, beta=5, record_id=i, record_true_class=int(record_true_class), 
                                 model_name=model_name)

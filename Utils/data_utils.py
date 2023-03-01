@@ -17,7 +17,7 @@ from sklearn.utils import resample
 
 def split_to_datasets(raw_data_path, seed=42, val_size=0.25, surrgate_train_size=0.5, save_path=None, exclude=None):
     files = os.listdir(save_path)
-    if "x_train_target_exclude_{}_seed_{}_val_size_{}_surrgate_train_size_{}1.csv".format(
+    if "x_train_target_exclude_{}_seed_{}_val_size_{}_surrgate_train_size_{}.csv".format(
             exclude,seed, val_size, surrgate_train_size) in files:
         x_train_target = pd.read_csv(save_path + "/x_train_target_exclude_{}_seed_{}_val_size_{}_surrgate_train_size_{}.csv".format(
             exclude,seed, val_size, surrgate_train_size))
@@ -41,7 +41,7 @@ def split_to_datasets(raw_data_path, seed=42, val_size=0.25, surrgate_train_size
         }
         return datasets
 
-    if "x_train_target_seed_{}_val_size_{}_surrgate_train_size_{}1.csv".format(
+    if "x_train_target_seed_{}_val_size_{}_surrgate_train_size_{}.csv".format(
             seed, val_size, surrgate_train_size) in files and exclude is None:
         x_train_target = pd.read_csv(save_path + "/x_train_target_seed_{}_val_size_{}_surrgate_train_size_{}.csv".format(
             seed, val_size, surrgate_train_size))

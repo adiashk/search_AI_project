@@ -37,7 +37,7 @@ if __name__ == '__main__':
     seed = int(configurations["seed"])
     exclude = configurations["exclude"]
     dataset_name = raw_data_path.split("/")[1]
-    '''
+    
     #preprocess_ICU(raw_data_path)
 
     # import datasets
@@ -53,26 +53,27 @@ if __name__ == '__main__':
         model_name_GB = "{}_{}_GB_exclude_{}_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude, seed, 0.01, 500, 9)
         model_name_RF = "{}_{}_RF_exclude_{}_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, exclude,seed, 500, 9)
     else:
-        model_name_GB = "{}_{}_GB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, seed, 0.01, 100, 3)
-        model_name_RF = "{}_{}_RF_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,seed, 100, 3)
-        model_name_XGB = "{}_{}_XGB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,seed, 0.05, 30, 5)
-    
-    GB  = pickle.load(open(models_path + "/" + model_name_GB + "_no_year.pkl", 'rb'))
-    RF  = pickle.load(open(models_path + "/" + model_name_RF + "_no_year.pkl", 'rb'))
-    XGB  = pickle.load(open(models_path + "/" + model_name_XGB + "_no_year.pkl", 'rb'))
-'''
+        model_name_GB = "{}_{}_GB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type, seed, 1.0, 100, 30)
+        model_name_RF = "{}_{}_RF_seed-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,seed, 150, 5)
+        #model_name_XGB = "{}_{}_XGB_seed-{}_lr-{}_estimators-{}_maxdepth-{}".format(data_name, model_type,seed, 0.05, 30, 5)
+    '''
+    GB  = pickle.load(open(models_path + "/" + model_name_GB + ".pkl", 'rb'))
+    RF  = pickle.load(open(models_path + "/" + model_name_RF + ".pkl", 'rb'))
+    XGB  = pickle.load(open(models_path + "/" + model_name_XGB + ".pkl", 'rb'))
+     '''
+
     GB = joblib.load(open(models_path + "/gb_sota_model.pkl", 'rb'))
     RF = joblib.load(open(models_path + "/rf_sota_model.pkl", 'rb'))
     
-    RF = joblib.load(open('Models/HATE/HATE_target_RF_seed-42_estimators-150_maxdepth-5.pkl', 'rb'))
-    GB = joblib.load(open('Models/HATE/HATE_target_GB_seed-42_lr-1.0_estimators-100_maxdepth-3.pkl', 'rb'))
+    #RF = joblib.load(open('Models/HATE/HATE_target_RF_seed-42_estimators-150_maxdepth-5.pkl', 'rb'))
+    #GB = joblib.load(open('Models/HATE/HATE_target_GB_seed-42_lr-1.0_estimators-100_maxdepth-30.pkl', 'rb'))
 
-    RF = joblib.load(open('Models/CREDIT/CREDIT_target_RF_seed-42_estimators-200_maxdepth-9.pkl', 'rb'))
-    GB = joblib.load(open('Models/CREDIT/CREDIT_target_GB_seed-42_lr-1.0_estimators-100_maxdepth-3.pkl', 'rb'))
+    #RF = joblib.load(open('Models/CREDIT/CREDIT_target_RF_seed-42_estimators-200_maxdepth-9.pkl', 'rb'))
+    #GB = joblib.load(open('Models/CREDIT/CREDIT_target_GB_seed-42_lr-1.0_estimators-100_maxdepth-3.pkl', 'rb'))
 
-    target_models = [GB, RF]#, XGB]
+    target_models = [RF]#, XGB]
     target_models_names = ["GB", "RF"]#, "XGB"]
-    '''
+    
     # prepare val data
     x_train = datasets["x_train_" + model_type]
     x_val = datasets["x_test"]
@@ -80,7 +81,9 @@ if __name__ == '__main__':
     y_val = datasets["y_test"]
     
     features = x_train.columns.to_frame()
-    '''
+    x_attack = pd.read_csv('Datasets/HATE/x_orig_attack.csv')
+    y_attack = pd.read_csv('Datasets/HATE/y_orig_attack.csv')
+    
     for j, target in enumerate(target_models):
         
         # show feature importance
@@ -104,26 +107,26 @@ if __name__ == '__main__':
         plt.show()
         plt.close()
 
-        """
+        
         #if ('ICU' in data_name): 
         data_raw = x_val.copy()
         data_raw['pred'] = y_val 
         data_raw = shuffle(data_raw)
-        '''
+       
         # under-sampling                                                                                
         g = data_raw.groupby('pred')
         x_val = g.apply(lambda x: x.sample(g.size().max(), replace=True).reset_index(drop=True))
+        
         x_val = data_raw.drop("pred", axis=1)
         y_val = pd.DataFrame(data_raw["pred"])
-        '''
-        
+       
         eval = model_evaluation(model=target.predict,
                                 val_x=x_val,
                                 val_y=y_val,
                                 #saving_path=saving_path,
-                                model_name=model_name)
+                                model_name="model_name_"+target_models_names[j])
 
-        eval = "up" # down
+        eval = "down" # down
          
         if (eval == "down"):
             # under-sampling                                                                               
@@ -131,16 +134,16 @@ if __name__ == '__main__':
             x_val = g.apply(lambda x: x.sample(g.size().max(), replace=True).reset_index(drop=True))
             x_val = data_raw.drop("pred", axis=1)
             y_val = pd.DataFrame(data_raw["pred"])
-            model_name= model_name +'_undersamptest'
+            model_name= "model_name_"+target_models_names[j] +'_undersamptest'
 
             eval_under = model_evaluation(model=target.predict,
                                     val_x=x_val,
                                     val_y=y_val,
                                     #saving_path=saving_path,
-                                    model_name=model_name)
+                                    model_name="model_name_"+target_models_names[j])
 
 
-            model_name= model_name +'_undersamptest'     
+            model_name= "model_name_"+target_models_names[j] +'_undersamptest'     
 
         else:
             # over-sampling
@@ -160,7 +163,7 @@ if __name__ == '__main__':
             y_val = pd.DataFrame(df_upsampled['pred'])
             x_val = df_upsampled.drop('pred', axis=1)
             
-            model_name= model_name +'_upsamptest' 
+            model_name= "model_name_"+target_models_names[j] +'_upsamptest' 
         
         # eval only class 0
         model_name=model_name+'_0'
@@ -172,7 +175,7 @@ if __name__ == '__main__':
                                 val_x=x_val_0,
                                 val_y=y_val_0,
                                 #saving_path=saving_path,
-                                model_name=model_name)
+                                model_name="model_name_"+target_models_names[j])
 
         # eval only class 1
         model_name=model_name+'_1'
@@ -180,6 +183,7 @@ if __name__ == '__main__':
                                 val_x=x_val_1,
                                 val_y=y_val_1,
                                 #saving_path=saving_path,
-                                model_name=model_name)
+                                model_name="model_name_"+target_models_names[j])
         print ('s')
+        """
         """
