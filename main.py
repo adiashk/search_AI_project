@@ -113,14 +113,33 @@ if __name__ == '__main__':
     for j, target in enumerate(target_models):
         # Attack preparation
         attack_x = datasets.get("x_test")
+        attack_y = datasets.get("y_test")
+        preds = target.predict(attack_x)
+        eq = np.equal(preds,attack_y['pred'])
+        i=0
+    
         #target_model = SklearnClassifier(model=target, columns=attack_x.columns)
-        target_model = target
         #constrains, perturbability = get_constrains(dataset_name, perturbability_path)
         columns_names = list(attack_x.columns)
         random.seed(seed)
         np.random.seed(seed)
+        print (target_models_names[j])
+        while i < attack_x.shape[0]:  # 10 random records to attack
 
-
+            #record_id = random.randint(0, x_attack.shape[0] - 1)  # get random record to attack:
+            # record_id = 13740
+            #record = x_attack.iloc[record_id]
+            record = attack_x.loc[i]
+            record_true_class = int(attack_y.pred[i])
+            record_pred = int(preds[i])
+            #print("true label: ", int(record_true_class))
+            prediction_record = target.predict(record.values.reshape(1, -1))[0]
+            if (record_pred != prediction_record):
+                print('pred != pred')
+            if (record_pred != record_true_class):
+                print('pred != true y')
+            i=i+1
+        
         '''
         # Attack
         attack = get_hopskipjump(target_model, constrains, columns_names)

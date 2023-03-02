@@ -94,7 +94,7 @@ def get_feature_range(dataset_name):
         }
     elif dataset_name == "HATE":
         feature_range = {
-            '''
+            
             'c_work_empath': np.linspace(0.1, 0.9, 100),
             'normal_neigh': np.linspace(0.1, 0.9, 100),
             'c_legend_empath': np.linspace(0.1, 0.9, 100),
@@ -104,7 +104,8 @@ def get_feature_range(dataset_name):
             'c_ridicule_empath': np.linspace(0.1, 0.9, 100),
             'c_fire_empath': np.linspace(0.1, 0.9, 100),
             'hate_neigh': np.linspace(0.1, 0.9, 100),
-            '''
+        }
+        """
             'sports_empath': np.linspace(0.1, 0.9, 100),
             'statuses_count': np.linspace(0, 1000, 10),
             'surprise_empath': np.linspace(0.1, 0.9, 100),
@@ -115,8 +116,9 @@ def get_feature_range(dataset_name):
             'work_empath': np.linspace(0.1, 0.9, 100),
             'youth_empath': np.linspace(0.1, 0.9, 100),
             'zest_empath': np.linspace(0.1, 0.9, 100),
+        """
 
-        }
+            
 
     elif dataset_name == 'CREDIT':
         feature_range = {
@@ -213,7 +215,7 @@ class SimulatedAnnealing:
                 # newSolution = random.choice(neighbors)
                 '''
                 # get 10 random neighbors and pick the best one -> minimal cost
-                reandom_neighbors = random.sample(neighbors, 10)
+                reandom_neighbors = random.sample(neighbors, 100)
                 # predict the cost of each neighbor and get the solution with the minimal cost -> the best neighbor
                 # neighbors_cost = []
                 # for neighbor in reandom_neighbors:
@@ -241,7 +243,7 @@ class SimulatedAnnealing:
                     print("find attacked sample!!!")
                     #print("Best Cost: ", new_sol_val)
                     
-                    return 1
+                    return [1, newSolution]
                 cost = curr_sol_val - new_sol_val
                 # if the new solution is better, accept it
                 if cost >= 0:
@@ -275,7 +277,7 @@ class SimulatedAnnealing:
             self.decrementRule()
         if self.neighborOperator(self.solution) == 0:
             print('no neighbors')
-        return 0
+        return[0, None]
         
 
 
@@ -309,7 +311,7 @@ if __name__ == '__main__':
         #x_attack = pd.read_csv('Datasets/HATE/x_orig_attack.csv')
         #y_attack = pd.read_csv('Datasets/HATE/y_orig_attack.csv')
         #model = joblib.load('Models/HATE/rf_sota_model.pkl')
-        model = pickle.load(open('Models/HATE/HATE_target_RF_seed-42_estimators-100_maxdepth-3.pkl', 'rb'))
+        #model = pickle.load(open('Models/HATE/HATE_target_RF_seed-42_estimators-100_maxdepth-3.pkl', 'rb'))
         #model = pickle.load(open('Models/HATE/HATE_target_XGB_seed-42_lr-0.1_estimators-70_maxdepth-8.pkl', 'rb'))
         model = pickle.load(open('Models/HATE/HATE_target_GB_seed-42_lr-1.0_estimators-100_maxdepth-3.pkl', 'rb'))
     elif ('CREDIT' in dataset_name):
@@ -325,55 +327,58 @@ if __name__ == '__main__':
 
     model_name = model.__class__.__name__
     print("model name: ", model_name)
-    i=0
-    num_success = 0
-
-    #target_model = SklearnClassifier(model=model, columns=x_attack.columns)
-    #columns_names = list(x_attack.columns)
     
-    preds = model.predict(x_attack)
-    #x_attack = attack_x.copy().loc[attack_y['pred'].values == preds]
-    #y_attack = attack_y.copy().loc[attack_y['pred'].values == preds]
-    #preds_e = preds.copy()[attack_y['pred'].values == preds]
+    attack_x = datasets.get("x_test")
+    attack_y = datasets.get("y_test")
+    preds = model.predict(attack_x)
+    eq = np.equal(preds,attack_y['pred'])
+    i=0
 
-    #ise = np.equal(preds_e,y_attack.values)
-    while i<x_attack.shape[0]:  # 10 random records to attack
+    #target_model = SklearnClassifier(model=target, columns=attack_x.columns)
+    #constrains, perturbability = get_constrains(dataset_name, perturbability_path)
+    columns_names = list(attack_x.columns)
+    #random.seed(seed)
+    #np.random.seed(seed)
+    #print (target_models_names[j])
+    num_success = 0
+    mis = 0
+    well = 0
+    attack_set = []
+    while i < attack_x.shape[0]:  # 10 random records to attack
 
-        #record_id = random.randint(0, x_attack.shape[0] - 1)  # get random record to attack:
-        # record_id = 13740
-        #record = x_attack.iloc[record_id]
-        record = x_attack.loc[i]
-        record_true_class = int(y_attack.values[i][0])
-        record_true_c = int(y_attack.loc[i])
+        record = attack_x.loc[i]
+        record_true_class = int(attack_y.pred[i])
+        record_pred = int(preds[i])
         #print("true label: ", int(record_true_class))
-       
         prediction_record = model.predict(record.values.reshape(1, -1))[0]
-        if (preds[i] == prediction_record):
-            print('good')
-        
-        prediction_pre_record = int(model.predict(record.values.reshape(1, -1))[0])
- 
-        #prediction_pre_record = int(model.predict(record.to_numpy()))
-
-        if prediction_pre_record != int(record_true_c):
+        if (record_pred != prediction_record):
+            print('pred != pred')
+        if (record_pred != record_true_class):
             print("record is misclassified")
-            # i -= 1
+            mis += 1
+            i += 1
             continue
-        #print("i: ", i)
-        #print("record id: ", record_id)
-        #print("prediction: ", prediction_pre_record)
-        #print("prediction prob: ", model.predict_proba(record.values.reshape(1, -1))[0])
+        
         i += 1
+        well +=1
+        
         SA = SimulatedAnnealing(initialSolution=record, solutionEvaluator=model.predict_proba,
                                 initialTemp=100, finalTemp=0.01,
                                 tempReduction="linear",
                                 iterationPerTemp=100, alpha=10, beta=5, record_id=i, record_true_class=int(record_true_class), 
                                 model_name=model_name)
-        success = SA.run()
-        if (success == 1):
+        attack_res = SA.run()
+        if (attack_res[0] == 1):
             num_success = num_success+1
+            rec = list((attack_res[1].values.reshape(1,-1)).flatten())
+            attack_set.append(rec)
+        
         #print("final solution for sample : ", SA.max_cost)
         print("======================+=======================")
-    print(i, " samples classified well")
+    print(i, " samples")
     print(num_success, " samples success attack")
+    print(mis, "mis")
+    print(well, "well")
+    attack_sets = pd.DataFrame(attack_set, columns=columns_names)
+    attack_sets.to_csv("Datasets/HATE/HATE_adv_"+ model_name +".csv",index=False)
     
