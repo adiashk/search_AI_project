@@ -344,6 +344,8 @@ if __name__ == '__main__':
     mis = 0
     well = 0
     attack_set = []
+    orig = []
+    a=[]
     while i < attack_x.shape[0]:  # 10 random records to attack
 
         record = attack_x.loc[i]
@@ -372,6 +374,7 @@ if __name__ == '__main__':
             num_success = num_success+1
             rec = list((attack_res[1].values.reshape(1,-1)).flatten())
             attack_set.append(rec)
+            orig.append(rec)
         
         #print("final solution for sample : ", SA.max_cost)
         print("======================+=======================")
@@ -379,6 +382,9 @@ if __name__ == '__main__':
     print(num_success, " samples success attack")
     print(mis, "mis")
     print(well, "well")
+    print('a', a)
     attack_sets = pd.DataFrame(attack_set, columns=columns_names)
+    origs = pd.DataFrame(orig, columns=columns_names)
     attack_sets.to_csv("Datasets/HATE/HATE_adv_"+ model_name +".csv",index=False)
+    attack_sets.to_csv("Datasets/HATE/HATE_orig_"+ model_name +".csv",index=False)
     
